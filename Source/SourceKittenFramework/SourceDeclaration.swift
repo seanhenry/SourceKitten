@@ -100,7 +100,11 @@ public struct SourceDeclaration {
             fatalError("expected an instance or class property by got \(usr)")
         }
         let nsDeclaration = declaration as NSString
+#if swift(>=3.2)
         let usrPrefix = usr[...propertyTypeStringStart]
+#else
+        let usrPrefix = usr.substring(to: propertyTypeStringStart)
+#endif
         let regex = try! NSRegularExpression(pattern: getter ? "getter\\s*=\\s*(\\w+)" : "setter\\s*=\\s*(\\w+:)")
         let matches = regex.matches(in: declaration, options: [], range: NSRange(location: 0, length: nsDeclaration.length))
         if !matches.isEmpty {
@@ -111,7 +115,11 @@ public struct SourceDeclaration {
         }
         // Setter
         let setterOffset = accessorType.propertyTypeString.characters.count
+#if swift(>=3.2)
         let capitalizedSetterName = String(usr[usr.characters.index(propertyTypeStringStart, offsetBy: setterOffset)...]).capitalizingFirstLetter()
+#else
+        let capitalizedSetterName = usr.substring(from: usr.characters.index(propertyTypeStringStart, offsetBy: setterOffset)).capitalizingFirstLetter()
+#endif
         return "\(usrPrefix)\(accessorType.methodTypeString)set\(capitalizedSetterName):"
     }
 }
